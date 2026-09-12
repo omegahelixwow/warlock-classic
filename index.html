@@ -220,11 +220,12 @@ const TREES = {
         null
       ],
       [
+        null,
         {id:"a14",n:"Siphon Life",r:1,k:"active",m:"150 Mana &middot; 30 yd &middot; Instant",
          e:"Transfers 15 health from the target to the caster every 3 sec. Lasts 30 sec."},
         {id:"a15",n:"Soul Siphon",r:3,k:"passive",
          e:"Increases the rate at which your Drain Life and Drain Soul deal damage by {17}%, but reduces your healing from Drain Life by 10%."},
-        null,null
+        null
       ],
       [
         null,null,
@@ -233,9 +234,10 @@ const TREES = {
         null
       ],
       [
+        null,
         {id:"a17",n:"Drain Hope",r:1,k:"active",req:"a14",m:"200 Mana &middot; 30 yd &middot; Channeled",
          e:"Drains all hope from the target, dealing 52 Shadow damage every 1 sec and increasing all other Shadow damage-over-time you deal to that target by 10%. Lasts 6 sec."},
-        null,null,null
+        null,null
       ]
     ]
   },
@@ -251,50 +253,51 @@ const TREES = {
          e:"Increases the damage of your Imp's Firebolt spell by {10}% and the effect of its Fire Shield spell by {10}%."},
         {id:"d3",n:"Demonic Embrace",r:5,k:"passive",
          e:"Increases your total Stamina by {3}%."},
-        {id:"d4",n:"Demonic Energies",r:2,k:"passive",
-         e:"You heal your pet for {8}% of all spell damage you deal. When you gain Mana from Life Tap, your summoned demon gains {50}% of the Mana you gain."}
+        {id:"d7",n:"Unholy Power",r:5,k:"passive",
+         e:"Increases all damage done by your Imp, Voidwalker, Succubus, Incubus, and Felhunter pets by {2}%."}
       ],
       [
         {id:"d5",n:"Demonic Aegis",r:2,k:"passive",
          e:"Increases the effectiveness of your Demon Skin and Demon Armor spells by {15}%."},
         {id:"d6",n:"Improved Voidwalker",r:3,k:"passive",
          e:"Increases the effectiveness of your Voidwalker's Torment, Consume Shadows, Sacrifice, and Suffering spells by {10}%."},
-        {id:"d7",n:"Unholy Power",r:5,k:"passive",
-         e:"Increases all damage done by your Imp, Voidwalker, Succubus, Incubus, and Felhunter pets by {2}%."},
         {id:"d8",n:"Fel Vitality",r:3,k:"passive",
-         e:"Increases the maximum health and Mana of your Imp, Voidwalker, Succubus, Incubus, and Felhunter by {5}%, and increases your maximum Mana by {5}%."}
+         e:"Increases the maximum health and Mana of your Imp, Voidwalker, Succubus, Incubus, and Felhunter by {5}%, and increases your maximum Mana by {5}%."},
+        {id:"d4",n:"Demonic Energies",r:2,k:"passive",
+         e:"You heal your pet for {8}% of all spell damage you deal. When you gain Mana from Life Tap, your summoned demon gains {50}% of the Mana you gain."}
       ],
       [
-        {id:"d9",n:"Demonic Sacrifice",r:1,k:"active",m:"100 yd &middot; Instant",
-         e:"Sacrifice a demon for 2 hr: Imp +15% Shadow damage; Voidwalker restores 2% Mana/4 sec; Sayaad +15% Fire damage; Felhunter restores 3% Health/4 sec. Cancelled if any demon is summoned."},
         {id:"d10",n:"Improved Sayaad",r:3,k:"passive",
          e:"Increases the effect of your Succubus' and Incubus' Lash of Pain and Soothing Kiss spells by {10}%, and the duration of their Seduction and Lesser Invisibility spells by {10}%."},
+        {id:"d9",n:"Demonic Sacrifice",r:1,k:"active",m:"100 yd &middot; Instant",
+         e:"Sacrifice a demon for 2 hr: Imp +15% Shadow damage; Voidwalker restores 2% Mana/4 sec; Sayaad +15% Fire damage; Felhunter restores 3% Health/4 sec. Cancelled if any demon is summoned."},
         {id:"d11",n:"Master Summoner",r:2,k:"passive",
          e:"Reduces the casting time of your Imp, Voidwalker, Succubus, Incubus, and Felhunter summoning spells by {2} sec and their Mana cost by {20}%."},
-        {id:"d12",n:"Demonic Brand",r:3,k:"passive",
-         e:"Your Searing Pain generates {17}% less threat and brands the target for 10 sec. Your pet's next 2 attacks against that target generate high threat and deal {39} to {42} Fire or Shadow damage based on the pet."}
+        null
       ],
       [
         {id:"d13",n:"Decimation",r:2,k:"passive",
          e:"Reduces the cooldown of your Soul Fire spell by {45}%. When you cast Shadow Bolt or Searing Pain on an enemy below 35% health, they deal {3}% increased damage, and for the next 10 sec your Soul Fire has its cast time reduced by {20}% and costs no Soul Shards."},
-        {id:"d14",n:"Fel Domination",r:1,k:"active",m:"Instant &middot; 5 min cooldown",
+        null,
+        {id:"d14",n:"Fel Domination",r:1,k:"active",req:"d11",m:"Instant &middot; 5 min cooldown",
          e:"Your next Imp, Voidwalker, Succubus, Incubus, or Felhunter summon has its casting time reduced by 5.5 sec and its Mana cost reduced by 50%."},
-        {id:"d15",n:"Demonic Knowledge",r:3,k:"passive",req:"d11",
-         e:"Increases your spell damage and healing by up to {33}% of your level while you have a summoned Demon pet active."},
+        {id:"d12",n:"Demonic Brand",r:3,k:"passive",
+         e:"Your Searing Pain generates {17}% less threat and brands the target for 10 sec. Your pet's next 2 attacks against that target generate high threat and deal {39} to {42} Fire or Shadow damage based on the pet."}
+      ],
+      [
         {id:"d16",n:"Improved Felhunter",r:3,k:"passive",
-         e:"Increases the Attack Power reduction of your Felhunter's Tainted Blood, the healing of its Devour Magic, and the detection level of its Paranoia by {10}%, and reduces the cooldown of its Spell Lock by {2} sec."}
-      ],
-      [
-        null,
-        {id:"d17",n:"Master Demonologist",r:5,k:"passive",req:"d14",
-         e:"Grants you and your active demon an effect. Imp: +{2}% Fire damage done. Voidwalker: &minus;{2}% Physical damage taken. Sayaad: +{2}% Shadow damage done. Felhunter: &minus;{2}% Magic damage taken."},
-        null,null
-      ],
-      [
-        null,
-        {id:"d18",n:"Demonic Pact",r:1,k:"passive",req:"d17",
+         e:"Increases the Attack Power reduction of your Felhunter's Tainted Blood, the healing of its Devour Magic, and the detection level of its Paranoia by {10}%, and reduces the cooldown of its Spell Lock by {2} sec."},
+        {id:"d18",n:"Demonic Pact",r:1,k:"passive",req:"d9",
          e:"Your Demonic Sacrifice effect is no longer cancelled by summoning a different demon pet. Resummoning the sacrificed pet still cancels it."},
-        null,null
+        {id:"d15",n:"Demonic Knowledge",r:3,k:"passive",
+         e:"Increases your spell damage and healing by up to {33}% of your level while you have a summoned Demon pet active."},
+        null
+      ],
+      [
+        null,null,
+        {id:"d17",n:"Master Demonologist",r:5,k:"passive",
+         e:"Grants you and your active demon an effect. Imp: +{2}% Fire damage done. Voidwalker: &minus;{2}% Physical damage taken. Sayaad: +{2}% Shadow damage done. Felhunter: &minus;{2}% Magic damage taken."},
+        null
       ],
       [
         null,
