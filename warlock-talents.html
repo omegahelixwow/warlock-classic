@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warlock Talent Trees</title>
+<style>
+  :root{
+    --gold:#e8c25f;
+    --gold-soft:#a88b41;
+    --card:#2b2621;
+    --card-lit:#332c24;
+    --edge:#4a4134;
+    --edge-gold:#b8923f;
+    --body:#ded5c6;
+    --dim:#9a9183;
+    --mute:#6d6349;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:#0a0908;
+    background-image:radial-gradient(ellipse 80% 45% at 50% -5%,rgba(120,90,40,.16),transparent 70%);
+    color:var(--body);
+    font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+    min-height:100vh;
+  }
+  .page{max-width:1220px;margin:0 auto;padding:30px 18px 70px}
+
+  header.masthead{text-align:center;margin-bottom:22px}
+  .sigil{
+    width:50px;height:50px;margin:0 auto 12px;border:2px solid var(--gold-soft);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:23px;
+    background:radial-gradient(circle at 50% 35%,#35291a,#100c08);
+    box-shadow:0 0 22px rgba(232,194,95,.16),inset 0 0 14px rgba(0,0,0,.7);
+  }
+  h1{margin:0;font-size:clamp(23px,4.5vw,32px);font-weight:600;letter-spacing:-.01em;color:var(--gold)}
+  .standfirst{margin:9px auto 0;max-width:60ch;font-size:14px;line-height:1.6;color:var(--dim)}
+
+  .budget{
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 18px;
+    margin:22px auto 22px;padding:12px 18px;max-width:680px;
+    background:linear-gradient(180deg,#211c15,#17140f);
+    border:1px solid var(--edge);border-radius:7px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 6px 18px rgba(0,0,0,.5);
+  }
+  .budget .count{font-size:25px;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1;font-weight:600}
+  .budget .count small{font-size:13px;color:var(--dim);font-weight:400}
+  .budget .caption{font-size:12.5px;color:var(--dim)}
+  .btn{
+    background:linear-gradient(180deg,#2b2418,#171209);border:1px solid var(--edge);
+    color:var(--body);font-family:inherit;font-size:12.5px;
+    padding:6px 13px;border-radius:5px;cursor:pointer;transition:border-color .15s,color .15s;
+  }
+  .btn:hover{border-color:var(--gold-soft);color:var(--gold)}
+  .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+  .specs{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+  .spec-tab{
+    display:flex;align-items:center;gap:10px;padding:9px 17px;
+    background:linear-gradient(180deg,#221c13,#120e08);
+    border:1px solid var(--edge);border-radius:6px;cursor:pointer;
+    font-family:inherit;font-size:14.5px;font-weight:500;color:var(--dim);transition:all .16s;
+  }
+  .spec-tab:hover{color:var(--body);border-color:var(--gold-soft)}
+  .spec-tab[aria-selected="true"]{
+    color:var(--gold);border-color:var(--gold-soft);
+    background:linear-gradient(180deg,#382c17,#1b1409);
+    box-shadow:0 0 14px rgba(232,194,95,.16),inset 0 0 16px rgba(232,194,95,.08);
+  }
+  .spec-tab .tally{font-size:13px;color:var(--gold-soft);font-variant-numeric:tabular-nums;min-width:14px;text-align:right}
+  .spec-tab[aria-selected="true"] .tally{color:var(--gold)}
+
+  .tree{display:none}
+  .tree.shown{display:block}
+  .tree-top{
+    display:flex;align-items:center;gap:12px;padding-bottom:12px;margin-bottom:18px;
+    border-bottom:1px solid rgba(232,194,95,.2);
+  }
+  .tree-top h2{margin:0;font-size:20px;font-weight:600;color:var(--gold)}
+  .tree-top p{margin:2px 0 0;font-size:12.5px;color:var(--dim)}
+  .tree-top .tally-big{margin-left:auto;font-size:26px;font-weight:600;color:var(--gold);font-variant-numeric:tabular-nums}
+
+  .grid{position:relative}
+  svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
+  .wire{stroke:#5b4d33;stroke-width:2.5;fill:none}
+  .wire.lit{stroke:var(--gold);filter:drop-shadow(0 0 4px rgba(232,194,95,.55))}
+  .wire-head{fill:#5b4d33}
+  .wire-head.lit{fill:var(--gold)}
+
+  .tier-head{
+    display:flex;align-items:center;gap:10px;
+    font-size:11.5px;color:var(--mute);letter-spacing:.04em;
+    margin:0 0 9px;position:relative;z-index:1;
+  }
+  .tier-head::after{content:"";flex:1;height:1px;background:rgba(232,194,95,.1)}
+  .tier-head.blocked{color:#9b5a46}
+
+  .tier{
+    position:relative;z-index:1;display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px;margin-bottom:26px;align-items:stretch;
+  }
+
+  .card{
+    position:relative;text-align:left;font-family:inherit;
+    background:var(--card);border:1px solid var(--edge-gold);border-radius:9px;
+    padding:13px 15px 14px;cursor:pointer;
+    display:flex;flex-direction:column;
+    box-shadow:0 8px 22px rgba(0,0,0,.45);
+    transition:border-color .15s,box-shadow .15s,background .15s,transform .1s;
+  }
+  .card.void{visibility:hidden;box-shadow:none;border:0;background:none}
+  .card:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .card:active{transform:scale(.995)}
+  .card:hover{background:var(--card-lit)}
+
+  .card .cname{color:var(--gold);font-size:16px;font-weight:700;letter-spacing:-.01em;line-height:1.25;margin-bottom:3px}
+  .card .crank{color:var(--dim);font-size:12.5px;margin-bottom:10px}
+  .card .cmeta{color:#8fc4e8;font-size:12.5px;margin-bottom:8px}
+  .card .ctext{color:var(--body);font-size:13.5px;line-height:1.55;flex:1}
+  .card .ctext b{color:#ffdf95;font-weight:600}
+  .card .cfoot{font-size:11.5px;margin-top:11px;color:#7fa657}
+  .card .cfoot.locked{color:#c9694c}
+
+  .card.partial{border-color:var(--gold);box-shadow:0 0 14px rgba(232,194,95,.28),0 8px 22px rgba(0,0,0,.45)}
+  .card.full{
+    border-color:#ffd97e;background:#342c21;
+    box-shadow:0 0 20px rgba(255,217,126,.35),0 8px 22px rgba(0,0,0,.45);
+  }
+  .card.full .cname{color:#ffe6a4}
+  .card.shut{opacity:.44;cursor:not-allowed;box-shadow:none}
+
+  .pips{
+    position:absolute;top:11px;right:13px;
+    background:#171310;border:1px solid var(--edge);border-radius:4px;
+    font-size:11.5px;padding:1px 6px;color:var(--dim);font-variant-numeric:tabular-nums;
+  }
+  .card.partial .pips{color:var(--gold);border-color:var(--gold-soft)}
+  .card.full .pips{color:#ffe6a4;border-color:#ffd97e}
+  .card .cname{padding-right:52px}
+
+  footer{margin-top:30px;text-align:center;font-size:11.5px;color:#5d543f;line-height:1.7}
+  footer .legend{margin-bottom:6px;color:var(--mute)}
+
+  @media (max-width:1000px){ .tier{grid-template-columns:repeat(2,minmax(0,1fr))} svg.wires{display:none} }
+  @media (max-width:600px){ .tier{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="sigil">&#128520;</div>
+    <h1>Warlock Talent Trees</h1>
+    <p class="standfirst">Every talent laid out with its full text. Numbers scale with the ranks you invest —
+      click a talent to learn a rank, right-click to unlearn one.</p>
+  </header>
+
+  <div class="budget">
+    <div><span class="count" id="totalCount">0</span><span class="count"><small> / 51</small></span></div>
+    <div class="caption" id="budgetCaption">points spent</div>
+    <button class="btn" id="maxAll">Show all at max rank</button>
+    <button class="btn" id="resetSpec">Reset this tree</button>
+    <button class="btn" id="resetAll">Reset everything</button>
+  </div>
+
+  <div class="specs" role="tablist" id="specTabs"></div>
+  <div id="trees"></div>
+
+  <footer>
+    <div class="legend">Dim = tier locked &middot; Gold border = ranks invested &middot; Bright gold = maxed</div>
+    <div>Scaled values assume each rank adds the base amount, rounded to the clean figure at max rank.
+      Ranges, costs, cooldowns and thresholds stay fixed.</div>
+  </footer>
+</div>
+
+<script>
+/* Numbers in {braces} multiply by rank. */
+const TREES = {
+  affliction:{
+    name:"Affliction",
+    blurb:"Curses, drains, and slow inevitable decay.",
+    tiers:[
+      [
+        {id:"a1",n:"Improved Life Tap",r:2,k:"passive",
+         e:"Increases the amount of Mana awarded by your Life Tap spell by {10}%."},
+        {id:"a2",n:"Suppression",r:5,k:"passive",
+         e:"Increases your chance to hit with all spells and attacks by {1}% and reduces all threat you generate by {4}%."},
+        {id:"a3",n:"Improved Corruption",r:5,k:"passive",
+         e:"Reduces the casting time of your Corruption spell by {0.4} sec and increases the damage it deals by {2}%."},
+        null
+      ],
+      [
+        {id:"a4",n:"Malediction",r:5,k:"passive",
+         e:"Increases all periodic damage done by your Warlock spells by {1}%."},
+        {id:"a5",n:"Soul Harvesting",r:2,k:"passive",
+         e:"You gain Soul Harvest for {10} sec if a victim is killed while afflicted with your Drain Soul. Soul Harvest lets your Mana regenerate at 50% of normal speed while casting, and grants a {50}% increase to Mana regeneration."},
+        {id:"a6",n:"Improved Drains",r:3,k:"passive",
+         e:"Increases damage done or health drained by Drain Life and Drain Soul by {2}% per other Affliction effect on the target, up to {6}%. When Drain Soul damages targets below 20% health this bonus is tripled. Drain Life range extended by {3} yards."},
+        null
+      ],
+      [
+        {id:"a7",n:"Improved Bane of Agony",r:2,k:"passive",
+         e:"Increases the damage done by your Bane of Agony by {5}%."},
+        {id:"a8",n:"Fel Concentration",r:3,k:"passive",
+         e:"Gives you a {23}% chance to avoid interruption caused by damage while channeling or casting your Drain Life, Drain Mana, or Drain Soul spells."},
+        {id:"a9",n:"Amplify Curse",r:1,k:"active",m:"Instant &middot; 3 min cooldown",
+         e:"Increases the effect of your next Curse of Weakness or Bane of Agony by 50%, or your next Curse of Exhaustion by 20%. Lasts 30 sec."},
+        {id:"a10",n:"Pandemic",r:3,k:"passive",
+         e:"Increases the critical strike damage bonus of your Corruption, Bane of Agony, Bane of Doom, Drain Soul, Drain Life, Siphon Life, and Drain Hope spells by {33}%."}
+      ],
+      [
+        {id:"a11",n:"Malevolence",r:5,k:"passive",
+         e:"Increases the critical effect chance of your Shadow spells by {1}%."},
+        {id:"a12",n:"Nightfall",r:2,k:"passive",
+         e:"Corruption, Drain Soul and Drain Life have a {2}% chance to put you in Shadow Trance after damaging the opponent, reducing the cast time of your next Shadow Bolt by 100%."},
+        {id:"a13",n:"Curse of Exhaustion",r:1,k:"active",req:"a9",m:"69 Mana &middot; 30 yd &middot; Instant",
+         e:"Reduces the target's movement speed by 30% for 12 sec. Only one Curse per Warlock can be active on any one target."},
+        null
+      ],
+      [
+        {id:"a14",n:"Siphon Life",r:1,k:"active",m:"150 Mana &middot; 30 yd &middot; Instant",
+         e:"Transfers 15 health from the target to the caster every 3 sec. Lasts 30 sec."},
+        {id:"a15",n:"Soul Siphon",r:3,k:"passive",
+         e:"Increases the rate at which your Drain Life and Drain Soul deal damage by {17}%, but reduces your healing from Drain Life by 10%."},
+        null,null
+      ],
+      [
+        null,null,
+        {id:"a16",n:"Shadow Mastery",r:5,k:"passive",
+         e:"Increases the damage dealt or life drained by your Shadow spells by {1}%."},
+        null
+      ],
+      [
+        {id:"a17",n:"Drain Hope",r:1,k:"active",req:"a14",m:"200 Mana &middot; 30 yd &middot; Channeled",
+         e:"Drains all hope from the target, dealing 52 Shadow damage every 1 sec and increasing all other Shadow damage-over-time you deal to that target by 10%. Lasts 6 sec."},
+        null,null,null
+      ]
+    ]
+  },
+
+  demonology:{
+    name:"Demonology",
+    blurb:"Bind demons and turn their strength into your own.",
+    tiers:[
+      [
+        {id:"d1",n:"Improved Health Funnel",r:2,k:"passive",
+         e:"Increases the health transferred by your Health Funnel spell by {20}%, reduces its health cost by {15}%, and reduces all threat it generates by {50}%. Allows Health Funnel to be used regardless of your demon's health."},
+        {id:"d2",n:"Improved Imp",r:3,k:"passive",
+         e:"Increases the damage of your Imp's Firebolt spell by {10}% and the effect of its Fire Shield spell by {10}%."},
+        {id:"d3",n:"Demonic Embrace",r:5,k:"passive",
+         e:"Increases your total Stamina by {3}%."},
+        {id:"d4",n:"Demonic Energies",r:2,k:"passive",
+         e:"You heal your pet for {8}% of all spell damage you deal. When you gain Mana from Life Tap, your summoned demon gains {50}% of the Mana you gain."}
+      ],
+      [
+        {id:"d5",n:"Demonic Aegis",r:2,k:"passive",
+         e:"Increases the effectiveness of your Demon Skin and Demon Armor spells by {15}%."},
+        {id:"d6",n:"Improved Voidwalker",r:3,k:"passive",
+         e:"Increases the effectiveness of your Voidwalker's Torment, Consume Shadows, Sacrifice, and Suffering spells by {10}%."},
+        {id:"d7",n:"Unholy Power",r:5,k:"passive",
+         e:"Increases all damage done by your Imp, Voidwalker, Succubus, Incubus, and Felhunter pets by {2}%."},
+        {id:"d8",n:"Fel Vitality",r:3,k:"passive",
+         e:"Increases the maximum health and Mana of your Imp, Voidwalker, Succubus, Incubus, and Felhunter by {5}%, and increases your maximum Mana by {5}%."}
+      ],
+      [
+        {id:"d9",n:"Demonic Sacrifice",r:1,k:"active",m:"100 yd &middot; Instant",
+         e:"Sacrifice a demon for 2 hr: Imp +15% Shadow damage; Voidwalker restores 2% Mana/4 sec; Sayaad +15% Fire damage; Felhunter restores 3% Health/4 sec. Cancelled if any demon is summoned."},
+        {id:"d10",n:"Improved Sayaad",r:3,k:"passive",
+         e:"Increases the effect of your Succubus' and Incubus' Lash of Pain and Soothing Kiss spells by {10}%, and the duration of their Seduction and Lesser Invisibility spells by {10}%."},
+        {id:"d11",n:"Master Summoner",r:2,k:"passive",
+         e:"Reduces the casting time of your Imp, Voidwalker, Succubus, Incubus, and Felhunter summoning spells by {2} sec and their Mana cost by {20}%."},
+        {id:"d12",n:"Demonic Brand",r:3,k:"passive",
+         e:"Your Searing Pain generates {17}% less threat and brands the target for 10 sec. Your pet's next 2 attacks against that target generate high threat and deal {39} to {42} Fire or Shadow damage based on the pet."}
+      ],
+      [
+        {id:"d13",n:"Decimation",r:2,k:"passive",
+         e:"Reduces the cooldown of your Soul Fire spell by {45}%. When you cast Shadow Bolt or Searing Pain on an enemy below 35% health, they deal {3}% increased damage, and for the next 10 sec your Soul Fire has its cast time reduced by {20}% and costs no Soul Shards."},
+        {id:"d14",n:"Fel Domination",r:1,k:"active",m:"Instant &middot; 5 min cooldown",
+         e:"Your next Imp, Voidwalker, Succubus, Incubus, or Felhunter summon has its casting time reduced by 5.5 sec and its Mana cost reduced by 50%."},
+        {id:"d15",n:"Demonic Knowledge",r:3,k:"passive",req:"d11",
+         e:"Increases your spell damage and healing by up to {33}% of your level while you have a summoned Demon pet active."},
+        {id:"d16",n:"Improved Felhunter",r:3,k:"passive",
+         e:"Increases the Attack Power reduction of your Felhunter's Tainted Blood, the healing of its Devour Magic, and the detection level of its Paranoia by {10}%, and reduces the cooldown of its Spell Lock by {2} sec."}
+      ],
+      [
+        null,
+        {id:"d17",n:"Master Demonologist",r:5,k:"passive",req:"d14",
+         e:"Grants you and your active demon an effect. Imp: +{2}% Fire damage done. Voidwalker: &minus;{2}% Physical damage taken. Sayaad: +{2}% Shadow damage done. Felhunter: &minus;{2}% Magic damage taken."},
+        null,null
+      ],
+      [
+        null,
+        {id:"d18",n:"Demonic Pact",r:1,k:"passive",req:"d17",
+         e:"Your Demonic Sacrifice effect is no longer cancelled by summoning a different demon pet. Resummoning the sacrificed pet still cancels it."},
+        null,null
+      ],
+      [
+        null,
+        {id:"d19",n:"Soul Link",r:1,k:"active",req:"d18",m:"173 Mana &middot; 100 yd &middot; Instant",
+         e:"30% of all damage taken by you is taken by your demon instead. Both the demon and the master inflict 3% more damage. Lasts as long as the demon is active."},
+        null,null
+      ]
+    ]
+  },
+
+  destruction:{
+    name:"Destruction",
+    blurb:"Fire and shadow delivered fast, loud, and directly.",
+    tiers:[
+      [
+        {id:"x1",n:"Destructive Reach",r:2,k:"passive",
+         e:"Increases the range of your damaging spells by {10}%."},
+        {id:"x2",n:"Improved Shadow Bolt",r:5,k:"passive",
+         e:"Your Shadow Bolt critical strikes increase Shadow damage taken by the target from your attacks by {4}% for 12 sec."},
+        {id:"x3",n:"Bane",r:5,k:"passive",
+         e:"Reduces the casting time of your Shadow Bolt, Immolate, and Incinerate spells by {0.1} sec and your Soul Fire spell by {0.4} sec."},
+        null
+      ],
+      [
+        {id:"x4",n:"Aftermath",r:5,k:"passive",
+         e:"Increases the initial damage of your Immolate spell by {10}%, and your Conflagrate has a 20% chance to Daze the target, reducing movement speed by 50% for 5 sec."},
+        {id:"x5",n:"Cataclysm",r:3,k:"passive",
+         e:"Reduces the Mana cost of your Destruction spells by {3}%."},
+        {id:"x6",n:"Molten Skin",r:5,k:"passive",
+         e:"Reduces all damage taken by {2}%."},
+        null
+      ],
+      [
+        null,
+        {id:"x7",n:"Ruin",r:5,k:"passive",
+         e:"Increases the critical strike damage bonus of your Destruction spells by {20}%."},
+        {id:"x8",n:"Shadowburn",r:1,k:"active",
+         m:"105 Mana &middot; 30 yd &middot; Instant &middot; 15 sec cd &middot; Soul Shard",
+         e:"Instantly blasts the target for 102 to 111 Shadow damage. If the target dies within 8 sec of being hit and yields experience or honor, the caster gains a Soul Shard."},
+        null
+      ],
+      [
+        {id:"x9",n:"Conflagrate",r:1,k:"active",
+         m:"100 Mana &middot; 30 yd &middot; Instant &middot; 10 sec cd",
+         e:"Ignites a target already afflicted by your Immolate, dealing 109 to 132 Fire damage and consuming the Immolate effect."},
+        {id:"x10",n:"Agonizing Flames",r:3,k:"passive",
+         e:"Increases the critical strike chance of your Searing Pain spell by {3}% and the damage done by all your Destruction spells by {3}%."},
+        {id:"x11",n:"Intensity",r:3,k:"passive",
+         e:"Gives you a {23}% chance to resist interruption caused by damage while casting or channeling any Destruction spell."},
+        null
+      ],
+      [
+        {id:"x12",n:"Pyroclasm",r:2,k:"passive",req:"x9",
+         e:"Your Soul Fire spell has a {13}% chance to stun the target for 3 sec. Your Rain of Fire and Hellfire spells have a {13}% chance over their duration to stun targets they damage for 3 sec."},
+        {id:"x13",n:"Bane of Havoc",r:1,k:"active",m:"43 Mana &middot; Instant",
+         e:"Afflicts the target for 5 min, causing 15% of all damage you do to other targets to also be dealt to the cursed target. Limited to 1 target, and only one Bane per Warlock can be active on any one target."},
+        {id:"x14",n:"Fire and Brimstone",r:3,k:"passive",req:"x11",
+         e:"Increases the critical strike chance of your Conflagrate spell by {8}%."},
+        null
+      ],
+      [
+        null,null,
+        {id:"x15",n:"Shadow and Flame",r:5,k:"passive",
+         e:"Hitting an enemy with Conflagrate increases all Shadow damage you deal by {2}% for 20 sec; hitting with Shadowburn increases all Fire damage you deal by {2}% for 20 sec. Additionally, Conflagrate has a 20% chance not to consume Immolate, and Shadowburn has a 20% chance to instantly refund a Soul Shard."},
+        null
+      ],
+      [
+        null,
+        {id:"x16",n:"Incinerate",r:1,k:"active",req:"x13",
+         m:"205 Mana &middot; 30 yd &middot; 2.5 sec cast",
+         e:"Deals 125 to 140 Fire damage to your target, plus an additional 25% damage if the target is afflicted by your Immolate."},
+        null,null
+      ]
+    ]
+  }
+};
+
+const TIER_GATE=[0,5,10,15,20,25,30];
+const BUDGET=51;
+
+const ranks={},meta={};
+for(const key in TREES){
+  TREES[key].tiers.forEach((tier,ti)=>tier.forEach((t,ci)=>{
+    if(!t)return; ranks[t.id]=0; meta[t.id]={tree:key,tier:ti,col:ci,def:t};
+  }));
+}
+let active="affliction";
+
+const spentIn=key=>Object.keys(meta).filter(id=>meta[id].tree===key).reduce((s,id)=>s+ranks[id],0);
+const spentAll=()=>Object.values(ranks).reduce((a,b)=>a+b,0);
+const gateOpen=(key,tier)=>spentIn(key)>=TIER_GATE[tier];
+const reqMet=t=>!t.req||ranks[t.req]>=meta[t.req].def.r;
+function canLearn(t){
+  const m=meta[t.id];
+  return gateOpen(m.tree,m.tier)&&reqMet(t)&&ranks[t.id]<t.r&&spentAll()<BUDGET;
+}
+
+/* At max rank, snap near-misses to the clean figure: 99 -> 100, 69 -> 70. */
+function snap(v,atMax){
+  if(!atMax||v<5)return v;
+  const ten=Math.round(v/10)*10;
+  return Math.abs(v-ten)<=1 ? ten : v;
+}
+function num(v){
+  const r=Math.round(v*100)/100;
+  return (r%1===0)?String(r):String(r).replace(/0+$/,"");
+}
+function scaleText(text,mult,atMax){
+  return text.replace(/\{([\d.]+)\}/g,(_,v)=>
+    "<b>"+num(snap(parseFloat(v)*mult,atMax))+"</b>");
+}
+
+const tabsEl=document.getElementById("specTabs");
+const treesEl=document.getElementById("trees");
+
+for(const key in TREES){
+  const tree=TREES[key];
+  const tab=document.createElement("button");
+  tab.className="spec-tab";tab.setAttribute("role","tab");
+  tab.setAttribute("aria-selected",key===active);
+  tab.innerHTML=`<span>${tree.name}</span><span class="tally" data-tally="${key}">0</span>`;
+  tab.onclick=()=>{active=key;sync();};
+  tabsEl.appendChild(tab);
+
+  const panel=document.createElement("section");
+  panel.className="tree"+(key===active?" shown":"");
+  panel.dataset.tree=key;
+  panel.innerHTML=`
+    <div class="tree-top">
+      <div><h2>${tree.name}</h2><p>${tree.blurb}</p></div>
+      <div class="tally-big" data-bigtally="${key}">0</div>
+    </div>
+    <div class="grid" data-grid="${key}"><svg class="wires" data-wires="${key}"></svg></div>`;
+  treesEl.appendChild(panel);
+
+  const grid=panel.querySelector(`[data-grid="${key}"]`);
+  tree.tiers.forEach((tier,ti)=>{
+    const head=document.createElement("div");
+    head.className="tier-head";head.dataset.gate=`${key}-${ti}`;
+    head.innerHTML=`<span>Tier ${ti+1}${TIER_GATE[ti]?` &middot; requires ${TIER_GATE[ti]} points`:""}</span>`;
+    grid.appendChild(head);
+
+    const row=document.createElement("div");
+    row.className="tier";
+    tier.forEach(t=>{
+      const card=document.createElement("button");
+      if(!t){card.className="card void";card.tabIndex=-1;row.appendChild(card);return;}
+      card.className="card";card.dataset.card=t.id;
+      card.addEventListener("click",()=>learn(t.id));
+      card.addEventListener("contextmenu",e=>{e.preventDefault();unlearn(t.id);});
+      card.addEventListener("keydown",e=>{
+        if(e.key==="Backspace"||e.key==="Delete"){e.preventDefault();unlearn(t.id);}
+      });
+      row.appendChild(card);
+    });
+    grid.appendChild(row);
+  });
+}
+
+function learn(id){const t=meta[id].def;if(!canLearn(t))return;ranks[id]++;sync();}
+function unlearn(id){
+  if(ranks[id]===0)return;
+  ranks[id]--;
+  let changed=true;
+  while(changed){
+    changed=false;
+    for(const other in ranks){
+      if(ranks[other]===0)continue;
+      const m=meta[other];
+      if(!gateOpen(m.tree,m.tier)||!reqMet(m.def)){ranks[other]=0;changed=true;}
+    }
+  }
+  sync();
+}
+
+function rankLine(t,rk){
+  const kind=t.k==="active"?"Active":"Passive";
+  if(t.r===1)return `1 rank &middot; ${kind}`;
+  return (rk>0?`Rank ${rk} of ${t.r}`:`${t.r} ranks`)+` &middot; ${kind}`;
+}
+function cardHTML(t){
+  const m=meta[t.id],rk=ranks[t.id];
+  const shown=rk>0?rk:1;
+  const atMax=shown===t.r&&t.r>1;
+  const locked=!gateOpen(m.tree,m.tier)
+    ? `Requires ${TIER_GATE[m.tier]} points in ${TREES[m.tree].name}`
+    : (!reqMet(t)?`Requires ${meta[t.req].def.n}`:null);
+  const note=(t.r>1&&rk===0)?" &middot; showing rank 1":"";
+  return `
+    <span class="pips">${rk}/${t.r}</span>
+    <div class="cname">${t.n}</div>
+    <div class="crank">${rankLine(t,rk)}${note}</div>
+    ${t.m?`<div class="cmeta">${t.m}</div>`:""}
+    <div class="ctext">${scaleText(t.e,shown,atMax)}</div>
+    <div class="cfoot${locked?" locked":""}">${
+      locked?locked:(rk>=t.r?"Fully learned":"Click to learn a rank")
+    }</div>`;
+}
+
+function drawWires(key){
+  const svg=document.querySelector(`[data-wires="${key}"]`);
+  const grid=document.querySelector(`[data-grid="${key}"]`);
+  if(!svg||!grid)return;
+  svg.innerHTML="";
+  if(innerWidth<=1000)return;
+  const gb=grid.getBoundingClientRect();
+  TREES[key].tiers.flat().forEach(t=>{
+    if(!t||!t.req)return;
+    const from=grid.querySelector(`[data-card="${t.req}"]`);
+    const to=grid.querySelector(`[data-card="${t.id}"]`);
+    if(!from||!to)return;
+    const a=from.getBoundingClientRect(),b=to.getBoundingClientRect();
+    const x1=a.left-gb.left+a.width/2,y1=a.top-gb.top+a.height;
+    const x2=b.left-gb.left+b.width/2,y2=b.top-gb.top;
+    const lit=ranks[t.req]>=meta[t.req].def.r;
+    const mid=y1+(y2-y1)/2;
+    const d=(Math.abs(x1-x2)<2)?`M ${x1} ${y1} L ${x2} ${y2-8}`
+      :`M ${x1} ${y1} L ${x1} ${mid} L ${x2} ${mid} L ${x2} ${y2-8}`;
+    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+    path.setAttribute("d",d);path.setAttribute("class","wire"+(lit?" lit":""));
+    svg.appendChild(path);
+    const head=document.createElementNS("http://www.w3.org/2000/svg","polygon");
+    head.setAttribute("points",`${x2-5},${y2-9} ${x2+5},${y2-9} ${x2},${y2-1}`);
+    head.setAttribute("class","wire-head"+(lit?" lit":""));
+    svg.appendChild(head);
+  });
+}
+
+function sync(){
+  document.querySelectorAll(".spec-tab").forEach((tab,i)=>{
+    tab.setAttribute("aria-selected",Object.keys(TREES)[i]===active);
+  });
+  document.querySelectorAll(".tree").forEach(p=>p.classList.toggle("shown",p.dataset.tree===active));
+
+  for(const key in TREES){
+    const sp=spentIn(key);
+    document.querySelector(`[data-tally="${key}"]`).textContent=sp;
+    document.querySelector(`[data-bigtally="${key}"]`).textContent=sp;
+    TREES[key].tiers.forEach((tier,ti)=>{
+      const h=document.querySelector(`[data-gate="${key}-${ti}"]`);
+      if(h)h.classList.toggle("blocked",!gateOpen(key,ti));
+      tier.forEach(t=>{
+        if(!t)return;
+        const card=document.querySelector(`[data-card="${t.id}"]`);
+        const rk=ranks[t.id];
+        card.classList.remove("partial","full","shut");
+        if(rk>0&&rk>=t.r)card.classList.add("full");
+        else if(rk>0)card.classList.add("partial");
+        else if(!(gateOpen(key,ti)&&reqMet(t)))card.classList.add("shut");
+        card.innerHTML=cardHTML(t);
+      });
+    });
+  }
+  const total=spentAll();
+  document.getElementById("totalCount").textContent=total;
+  document.getElementById("budgetCaption").textContent=
+    total>=BUDGET?"points spent — no points left":"points spent";
+  requestAnimationFrame(()=>{for(const key in TREES)drawWires(key);});
+}
+
+/* reference mode: show every talent at full rank, ignoring the budget */
+let refMode=false;
+document.getElementById("maxAll").onclick=e=>{
+  refMode=!refMode;
+  Object.keys(ranks).forEach(id=>{ranks[id]=refMode?meta[id].def.r:0;});
+  e.target.textContent=refMode?"Back to spending points":"Show all at max rank";
+  sync();
+};
+document.getElementById("resetSpec").onclick=()=>{
+  Object.keys(meta).forEach(id=>{if(meta[id].tree===active)ranks[id]=0;});sync();
+};
+document.getElementById("resetAll").onclick=()=>{
+  Object.keys(ranks).forEach(id=>ranks[id]=0);sync();
+};
+addEventListener("resize",()=>{for(const key in TREES)drawWires(key);});
+
+sync();
+</script>
+</body>
+</html>
